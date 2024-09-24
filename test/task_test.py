@@ -5,7 +5,6 @@ from source.errors.task_execution_exception import TaskExecutionException
 from source.task_status import TaskStatus
 from source.task import Task
 import datetime
-from unittest.mock import call
 
 
 class TestTask(Task):

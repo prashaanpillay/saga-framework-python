@@ -238,7 +238,7 @@ class TestParallelTaskCompensation:
 
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed), \
                 patch.object(parallel_task.tasks[1], 'execute',
-                             side_effect=TaskExecutionException("Task2 Failed")) as mock_execute2, \
+                             side_effect=TaskExecutionException("Task2 Failed")) as _, \
                 patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
@@ -383,7 +383,7 @@ class TestParallelTaskCompensation:
 
         # Patch execute methods and compensation execute
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed), \
-                patch.object(parallel_task.tasks[1], 'execute', side_effect=set_task_1_completed) as mock_execute2, \
+                patch.object(parallel_task.tasks[1], 'execute', side_effect=set_task_1_completed) as _, \
                 patch.object(parallel_task.tasks[1].compensation, 'execute',
                              side_effect=set_task_1_comp_completed) as mock_comp2, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure, \
@@ -551,7 +551,7 @@ class TestParallelTaskCompensationWithoutCompensationTasks:
 
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed), \
                 patch.object(parallel_task.tasks[1], 'execute',
-                             side_effect=TaskExecutionException("Task2 Failed")) as mock_execute2, \
+                             side_effect=TaskExecutionException("Task2 Failed")) as _, \
                 patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
