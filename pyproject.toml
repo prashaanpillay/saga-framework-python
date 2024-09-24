@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "saga-framework-python"
 version = "0.0.1"
-description = "A python framework for implementing a saga pattern with hook points for each state execution."
+description = "A python framework for implementing a saga pattern."
 authors = ["PrashaanPillay"]
 readme = "README.md"
 
@@ -20,6 +20,11 @@ mypy = "^1.11.2"
 pytest = "^8.3.3"
 ruff = "^0.6.7"
 loguru = "^0.7.2"
+pytest-cov = "^5.0.0"
+pytest-xdist = "^3.6.1"
+pytest-sugar = "^1.0.0"
+pytest-socket = "^0.7.0"
+pytest-repeat = "^0.9.3"
 
 
 [build-system]

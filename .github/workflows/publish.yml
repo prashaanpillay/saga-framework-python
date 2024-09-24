@@ -1,0 +1,40 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.5'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-dev
+          poetry add twine python-semantic-release
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Run Semantic Release
+        env:
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # PyPI credentials
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # PyPI credentials
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to create release
+        run: |
+          semantic-release publish

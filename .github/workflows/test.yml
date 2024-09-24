@@ -1,0 +1,36 @@
+name: Test with Pytest
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+  pull_request:
+    branches:
+      - main
+      - develop
+      - feature/*
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.5'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-root
+
+      - name: Run Tests
+        run: |
+          poetry run pytest --disable-socket --verbose --cov=source/ --cov-report=term-missing --cov-fail-under=90 --cov-report=xml --junitxml=pytest-report.xml
