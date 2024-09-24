@@ -4,7 +4,9 @@ version = "0.0.1"
 description = "A python framework for implementing a saga pattern."
 authors = ["PrashaanPillay"]
 readme = "README.md"
-
+packages = [
+    { include = "source" }
+]
 [tool.pytest.ini_options]
 pythonpath = [
     "source",
@@ -25,7 +27,14 @@ pytest-xdist = "^3.6.1"
 pytest-sugar = "^1.0.0"
 pytest-socket = "^0.7.0"
 pytest-repeat = "^0.9.3"
+python-semantic-release = "^9.8.8"
+poetry-dynamic-versioning = "^1.4.1"
 
+[tool.semantic_release]
+version_variable = "source/__init__.py:__version__"
+version_source = "tag"  # Ensure tags are used as the version source
+build_command = "poetry build"
+upload_to_pypi = true
 
 [build-system]
 requires = ["poetry-core"]
