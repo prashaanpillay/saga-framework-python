@@ -37,4 +37,4 @@ jobs:
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # PyPI credentials
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to create release
         run: |
-          semantic-release publish
+          poetry run semantic-release publish --tag 0.0.1
