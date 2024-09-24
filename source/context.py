@@ -8,5 +8,5 @@ class Context:
     def set(self, key: str, value: Any):
         self.data[key] = value
 
-    def get(self, key: str) -> Any:
-        return self.data.get(key)
+    def get(self, key, default=None):
+        return self.data.get(key, default)
