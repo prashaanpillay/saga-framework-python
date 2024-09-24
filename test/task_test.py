@@ -12,6 +12,16 @@ class TestTask(Task):
         pass
 
 
+class ContextUsingTask(Task):
+    def _run(self, context: Context):
+        value = context.get('key')
+        context.set('key', value + 1)
+
+class CompensationTask(Task):
+    def _run(self, context: Context):
+        value = context.get('key')
+        context.set('key', value - 1)
+
 @pytest.fixture
 def context():
     return Context()
@@ -84,3 +94,12 @@ def test_log_state_durations(task):
     with patch('source.task.log_task_execution_progress') as mock_log_progress:
         task.log_state_durations()
         mock_log_progress.assert_called_once()
+
+def test_context_using_task(context):
+    compensate = CompensationTask(name="CompensationTask")
+    task = ContextUsingTask(name="ContextUsingTask", compensation = compensate)
+    context.set('key', 1)
+    task.execute(context)
+    assert context.get('key') == 2
+    task.compensate(context)
+    assert context.get('key') == 1

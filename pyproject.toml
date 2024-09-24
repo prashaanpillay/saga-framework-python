@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "saga-framework-python"
 version = "0.0.1"
-description = "A python framework for implementing a saga pattern with hook points for each state execution."
+description = "A python framework for implementing a saga pattern."
 authors = ["PrashaanPillay"]
 readme = "README.md"
 

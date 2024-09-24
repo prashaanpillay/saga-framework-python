@@ -1,0 +1,11 @@
+[run]
+# Add files or directories to omit from coverage tracking
+omit =
+    source/logging/*
+    source/errors/*
+
+[report]
+# Optionally: Omit specific lines (e.g., test helpers)
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
