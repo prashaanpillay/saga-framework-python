@@ -1,40 +1,40 @@
-name: Publish to PyPI
+name: Publish Python Package to PyPI
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0, v2.1, etc.
 
 jobs:
   publish:
-    name: Publish to PyPI
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.5'
+          python-version: '3.12.5'  # Specify your Python version
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry install --no-dev
-          poetry add twine python-semantic-release
+          poetry install
+          pip install build
 
-      - name: Set up Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+      - name: Build package
+        run: python -m build
 
-      - name: Run Semantic Release
+      - name: Publish package to PyPI
         env:
-          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}  # PyPI credentials
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}  # PyPI credentials
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to create release
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
-          poetry run semantic-release publish --tag v0.0.1
+          pip install twine
+          twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
+      - name: Clean up build files
+        run: rm -rf dist build *.egg-info
