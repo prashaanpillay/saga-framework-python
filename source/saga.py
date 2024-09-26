@@ -8,10 +8,10 @@ from source.task import Task
 
 
 class Saga:
-    def __init__(self):
+    def __init__(self, context: Optional[Context] = None):
         self._tasks: List[Task] = []
         self._completed_tasks: List[Task] = []
-        self._context: Context = Context()
+        self._context: Context = context or Context()
 
     def add_task(self, task: Task) -> None:
         """

@@ -56,7 +56,8 @@ class Task(ABC):
             self._run(context)
             self._update_status(TaskStatus.COMPLETED)
         except TaskExecutionException as e:
-            log_task_execution_error(self.name, self.compensation.name, e)
+            if self.compensation is not None:
+                log_task_execution_error(self.name, self.compensation.name, e)
             self._update_status(TaskStatus.FAILED)
             self._handle_failure(context)
 
