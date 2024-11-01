@@ -4,17 +4,18 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from source.context import Context
 from source.errors.parallel_task_requires_tasks_exception import ParallelTaskRequiresTasksException
 from source.errors.task_execution_exception import TaskExecutionException
-from source.logging.saga_logging import log_task_execution_error
+from source.logging.saga_logging import log_rollback_task_execution_error
+from source.rollback_task import RollbackTask
 from source.task import Task
 from source.task_status import TaskStatus
 
 
-class ParallelTask(Task):
+class ParallelTask(RollbackTask):
     def __init__(
         self,
         name: str,
         tasks: List[Task],
-        compensation: Optional['Task'] = None,
+        compensation: Optional[Task] = None,
         metadata: Optional[Dict[str, str]] = None,
         max_workers: Optional[int] = None
     ):
@@ -33,6 +34,7 @@ class ParallelTask(Task):
             raise ParallelTaskRequiresTasksException()
         self.tasks = tasks
         self.max_workers = max_workers or len(tasks)  # Default to number of tasks if not specified
+        self.task_attributes.append("parallel")
 
     def _run(self, context: Context):
         """
@@ -66,7 +68,7 @@ class ParallelTask(Task):
                     else:
                         raise TaskExecutionException(f"Task {task.name} failed with status {task.status}.")
                 except TaskExecutionException as e:
-                    log_task_execution_error(task.name, self.compensation.name if self.compensation else "No Compensation", e)
+                    log_rollback_task_execution_error(task.name, self.compensation.name if self.compensation else "No Compensation", e)
                     self._update_status(TaskStatus.FAILED)
                     self._handle_failure_parallel(context, completed_tasks)
                     # for f in futures_to_task:
@@ -90,7 +92,7 @@ class ParallelTask(Task):
                 try:
                     task.compensation.execute(context)
                 except TaskExecutionException as e:
-                    log_task_execution_error(task.compensation.name, "No Compensation", e)
+                    log_rollback_task_execution_error(task.compensation.name, "No Compensation", e)
         # Trigger the compensation for the ParallelTask itself, if any
         super()._handle_failure(context)
 

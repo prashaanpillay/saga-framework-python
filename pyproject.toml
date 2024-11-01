@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saga-framework-python"
-version = "0.0.1"
+version = "0.0.2"
 description = "A python framework for implementing a saga pattern."
 authors = ["PrashaanPillay"]
 readme = "README.md"
@@ -29,6 +29,7 @@ pytest-socket = "^0.7.0"
 pytest-repeat = "^0.9.3"
 python-semantic-release = "^9.8.8"
 poetry-dynamic-versioning = "^1.4.1"
+twine = "^5.1.1"
 
 [tool.semantic_release]
 version_variable = "source/__init__.py:__version__"

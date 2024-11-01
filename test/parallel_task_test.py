@@ -6,28 +6,29 @@ from concurrent.futures import Future
 from source.context import Context
 from source.errors.parallel_task_requires_tasks_exception import ParallelTaskRequiresTasksException
 from source.errors.task_execution_exception import TaskExecutionException
+from source.rollback_task import RollbackTask
 from source.task import Task
 from source.parallel_task import ParallelTask
 from source.task_status import TaskStatus
 
 
 # Define test task classes
-class TestTask(Task):
+class TestTask(RollbackTask):
     def _run(self, context: Context):
         self.status = TaskStatus.COMPLETED
 
 
-class FailingTask(Task):
+class FailingTask(RollbackTask):
     def _run(self, context: Context):
         raise TaskExecutionException("Task Failed.")
 
 
-class CompensationTask(Task):
+class CompensationTask(RollbackTask):
     def _run(self, context: Context):
         self.status = TaskStatus.COMPLETED
 
 
-class UnexpectedExceptionTask(Task):
+class UnexpectedExceptionTask(RollbackTask):
     def _run(self, context: Context):
         raise TaskExecutionException("Unexpected exception.")
 
@@ -171,7 +172,7 @@ class TestParallelTaskExecution:
         # Patch the execute methods and logging functions correctly
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed) as mock_execute1, \
                 patch.object(parallel_task.tasks[1], 'execute', wraps=parallel_task.tasks[1].execute) as mock_execute2, \
-                patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
+                patch('source.parallel_task.log_rollback_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
 
@@ -206,7 +207,7 @@ class TestParallelTaskExecution:
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed) as mock_execute1, \
                 patch.object(parallel_task.tasks[1], 'execute',
                              side_effect=TaskExecutionException("Unexpected exception.")) as mock_execute2, \
-                patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
+                patch('source.parallel_task.log_rollback_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
 
@@ -239,7 +240,7 @@ class TestParallelTaskCompensation:
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed), \
                 patch.object(parallel_task.tasks[1], 'execute',
                              side_effect=TaskExecutionException("Task2 Failed")) as _, \
-                patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
+                patch('source.parallel_task.log_rollback_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
 
@@ -387,7 +388,7 @@ class TestParallelTaskCompensation:
                 patch.object(parallel_task.tasks[1].compensation, 'execute',
                              side_effect=set_task_1_comp_completed) as mock_comp2, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure, \
-                patch('source.parallel_task.log_task_execution_error') as mock_log_error:
+                patch('source.parallel_task.log_rollback_task_execution_error') as mock_log_error:
             parallel_task.execute(context)
 
             # Verify that compensation for child_task1 was not called (since it's None)
@@ -552,7 +553,7 @@ class TestParallelTaskCompensationWithoutCompensationTasks:
         with patch.object(parallel_task.tasks[0], 'execute', side_effect=set_task_0_completed), \
                 patch.object(parallel_task.tasks[1], 'execute',
                              side_effect=TaskExecutionException("Task2 Failed")) as _, \
-                patch('source.parallel_task.log_task_execution_error') as mock_log_error, \
+                patch('source.parallel_task.log_rollback_task_execution_error') as mock_log_error, \
                 patch.object(parallel_task, '_handle_failure_parallel') as mock_handle_failure:
             parallel_task.execute(context)
 

@@ -1,13 +1,14 @@
 import pytest
 from unittest.mock import MagicMock, patch
+
+from source.rollback_task import RollbackTask
 from source.saga import Saga
-from source.task import Task
 from source.context import Context
 from source.errors.saga_execution_exception import SagaExecutionException
 from source.errors.saga_compensation_execution_exception import SagaCompensationExecutionException
 
 
-class TestTask(Task):
+class TestTask(RollbackTask):
     def _run(self, context: Context):
         pass  # Simple implementation for testing
 

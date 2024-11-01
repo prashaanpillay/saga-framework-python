@@ -50,6 +50,7 @@ class Saga:
         """
         for task in reversed(self._completed_tasks):
             try:
-                task.compensate(self._context)
+                if task.task_attributes.__contains__("compensation"):
+                    task.compensate(self._context)
             except SagaCompensationExecutionException as compensation_error:
                 log_saga_compensation_execution_error(task.name, compensation_error)

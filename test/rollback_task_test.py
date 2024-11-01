@@ -2,23 +2,23 @@ import pytest
 from unittest.mock import MagicMock, patch
 from source.context import Context
 from source.errors.task_execution_exception import TaskExecutionException
+from source.rollback_task import RollbackTask
 from source.task_status import TaskStatus
-from source.task import Task
 import datetime
 
 
-class TestTask(Task):
+class TestTask(RollbackTask):
     def _run(self, context: Context):
         pass
 
 
-class ContextUsingTask(Task):
+class ContextUsingTask(RollbackTask):
     def _run(self, context: Context):
         value = context.get('key')
         context.set('key', value + 1)
 
 
-class CompensationTask(Task):
+class CompensationTask(RollbackTask):
     def _run(self, context: Context):
         value = context.get('key')
         context.set('key', value - 1)
@@ -51,7 +51,7 @@ def test_task_execute_success(task, context):
 def test_task_execute_failure(task, context):
     task.compensation = MagicMock()
     with patch.object(task, '_run', side_effect=TaskExecutionException):
-        with patch('source.task.log_task_execution_error') as mock_log_error:
+        with patch('source.rollback_task.log_rollback_task_execution_error') as mock_log_error:
             with patch.object(task, '_handle_failure') as mock_handle_failure:
                 task.execute(context)
                 assert task.status == TaskStatus.FAILED
@@ -71,7 +71,7 @@ def test_execute_failing_executes_compensation(task, context):
     task = TestTask(name="TestTask", compensation=compensation_task)
 
     with patch.object(task, '_run', side_effect=TaskExecutionException):
-        with patch('source.task.log_task_execution_error') as mock_log_error:
+        with patch('source.rollback_task.log_rollback_task_execution_error') as mock_log_error:
             task.execute(context)
             assert task.status == TaskStatus.FAILED
             mock_log_error.assert_called_once()
@@ -80,7 +80,7 @@ def test_execute_failing_executes_compensation(task, context):
 
 def test_update_status_updates_durations(task):
     initial_time = task.last_status_update_time
-    with patch('source.task.Task._current_utc_time', return_value=initial_time + datetime.timedelta(seconds=5)):
+    with patch('source.rollback_task.RollbackTask._current_utc_time', return_value=initial_time + datetime.timedelta(seconds=5)):
         task._update_status(TaskStatus.IN_PROGRESS)
         assert task.status == TaskStatus.IN_PROGRESS
         assert task.state_durations[TaskStatus.PENDING] == datetime.timedelta(seconds=5)

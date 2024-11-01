@@ -12,6 +12,22 @@ logger.add(sys.stdout, format="{time} {level} {message}", level="DEBUG")
 
 def log_task_execution_error(
         task_name: str,
+        exception: Optional[TaskExecutionException] = None
+):
+    """
+    Logs an error when executing a task.
+
+    :param task_name: The name of the task.
+    :param exception: The exception that was raised.
+    """
+    message = f"Code: {TaskExecutionException.ERROR_CODE}. Task Failed: {task_name}."
+    if exception:
+        logger.error(message, exc_info=exception)
+    else:
+        logger.error(message)
+
+def log_rollback_task_execution_error(
+        task_name: str,
         compensation_name: Optional[str],
         exception: Optional[TaskExecutionException] = None
 ):
